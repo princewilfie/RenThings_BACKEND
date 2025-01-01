@@ -1,0 +1,20 @@
+{
+    "database" : {
+        "host" : "localhost",
+        "port" : 3306,
+        "user" : "root",
+        "password" : "",
+        "database" : "RenThings"
+    },
+    "secret": "6c32701b-3329-431e-b95f-5604da73e4fc",
+    "emailFrom": "JuanBayan",
+    "smtpOptions" : {
+        "service": "Gmail",
+        "host": "smtp.gmail.com", 
+        "port": 587,
+        "auth": {
+            "user": "juanbayan.ph@gmail.com",
+            "pass": "pxzy iube oyys uvyt"
+        }
+    }
+} 

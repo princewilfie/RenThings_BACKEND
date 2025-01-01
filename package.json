@@ -1,0 +1,37 @@
+{
+    "name": "capstone-juanbayan-backend",
+    "version": "1.0.0",
+    "description": "NodeJS and MySQL API for Email Sign Up with Verification, Authentication & Forgot Password",
+    "license": "MIT",
+    "scripts": {
+      "start": "node ./server.js",
+      "start:dev": "nodemon ./server.js"
+    },
+    "dependencies": {
+      "axios": "^1.7.7",
+      "bcryptjs": "^2.4.3",
+      "body-parser": "^1.19.0",
+      "cookie-parser": "^1.4.6",
+      "cors": "^2.8.5",
+      "dotenv": "^16.4.5",
+      "express": "^4.19.2",
+      "express-jwt": "^8.4.1",
+      "express-session": "^1.18.0",
+      "joi": "^17.12.3",
+      "jsonwebtoken": "^9.0.2",
+      "multer": "^1.4.5-lts.1",
+      "mysql2": "^3.9.7",
+      "nodemailer": "^6.9.13",
+      "passport": "^0.7.0",
+      "passport-google-oauth20": "^2.0.0",
+      "path": "^0.12.7",
+      "rootpath": "^0.1.2",
+      "sequelize": "^6.37.2",
+      "swagger-ui-express": "^5.0.0",
+      "yamljs": "^0.3.0"
+    },
+    "devDependencies": {
+      "nodemon": "^3.1.0"
+    }
+  }
+  
