@@ -1,6 +1,7 @@
 const express = require('express'); 
 const router = express.Router();
 const Joi = require('joi');
+const multer = require('_middleware/multer-config'); 
 const validateRequest = require('_middleware/validate-request'); 
 const authorize = require('_middleware/authorize')
 const Role = require('_helpers/role');
@@ -10,7 +11,7 @@ const accountService = require('./account.service');
 router.post('/authenticate', authenticateSchema, authenticate);
 router.post('/refresh-token', refreshToken);
 router.post('/revoke-token', authorize(), revokeTokenSchema, revokeToken);
-router.post('/register', registerSchema, register);
+router.post('/register', multer.single('acc_image'), registerSchema, register); 
 router.post('/verify-email', verifyEmailSchema, verifyEmail);
 router.post('/forgot-password', forgotPasswordSchema, forgotPassword); 
 router.post('/validate-reset-token', validateResetTokenSchema, validateResetToken); 
@@ -18,7 +19,16 @@ router.post('/reset-password', resetPasswordSchema, resetPassword);
 router.get('/', authorize(Role.Admin), getAll);
 router.get('/:id', authorize(), getById);
 router.post('/', authorize(Role.Admin), createSchema, create);
+router.put('/:id', multer.single('acc_image'), (req, res, next) => {
+    updateSchema(req, res, next);
+}, update);
+
 router.put('/:id', authorize(), updateSchema, update);
+
+
+
+
+
 router.delete('/:id', authorize(), _delete);
 
 module.exports = router;
@@ -86,10 +96,11 @@ function revokeToken(req, res, next) {
 
 function registerSchema(req, res, next) {
     const schema = Joi.object({
-        acc_firstName: Joi.string().required(), // Changed from acc_firstname
-        acc_lastName: Joi.string().required(),  // Changed from acc_lastname
+        acc_firstName: Joi.string().required(), 
+        acc_lastName: Joi.string().required(), 
         acc_email: Joi.string().email().required(),
-        acc_password: Joi.string().min(6).required(), // Changed from acc_passwordHash
+        acc_address: Joi.string().required(),
+        acc_password: Joi.string().min(6).required(), 
         confirmPassword: Joi.string().valid(Joi.ref('acc_password')).required(),
         acceptTerms: Joi.boolean().valid(true).required()
     });
@@ -97,10 +108,20 @@ function registerSchema(req, res, next) {
 }
 
 function register(req, res, next) {
-    accountService.register(req.body, req.get('origin'))
-        .then(() => res.json({ message: 'Registration successful, please check your email for verification instructions' }))
+    // Access data from req.body
+    const { acc_email, acc_password, acc_firstName, acc_lastName, acc_address, acceptTerms } = req.body;
+    const acc_image = req.file ? path.basename(req.file.path) : 'default-profile.png'; // Change null to 'default-image.png'
+
+    const body = { acc_email, acc_password, acc_firstName, acc_lastName, acc_address, acc_image, acceptTerms };
+
+
+    accountService.register(body, req.get('origin'))
+        .then(() => {
+            res.json({ message: 'Registration successful, please check your email for verification instructions' });
+        })
         .catch(next);
 }
+
 
 function verifyEmailSchema(req, res, next) {
     const schema = Joi.object({
@@ -174,11 +195,12 @@ function getById(req, res, next) {
 
 function createSchema(req, res, next) {
     const schema = Joi.object({
-        acc_firstname: Joi.string().required(), // Updated to match your model
-        acc_lastname: Joi.string().required(), // Updated to match your model
-        acc_email: Joi.string().email().required(), // Updated to match your model
-        acc_passwordHash: Joi.string().min(6).required(), // Updated to match your model
-        confirmPassword: Joi.string().valid(Joi.ref('acc_passwordHash')).required(), // Updated to match your model
+        acc_firstname: Joi.string().required(),
+        acc_lastname: Joi.string().required(),
+        acc_email: Joi.string().email().required(),
+        acc_passwordHash: Joi.string().min(6).required(),
+        acc_address: Joi.string().required(),
+        confirmPassword: Joi.string().valid(Joi.ref('acc_passwordHash')).required(),
         role: Joi.string().valid(Role.Admin, Role.User).required()
     });
     validateRequest(req, next, schema);
@@ -191,39 +213,32 @@ function create(req, res, next) {
 }
 
 function updateSchema(req, res, next) {
-    const schemaRules = {
-        acc_firstname: Joi.string().empty(''), // Updated to match your model
-        acc_lastname: Joi.string().empty(''), // Updated to match your model
-        acc_email: Joi.string().email().empty(''), // Updated to match your model
-        acc_passwordHash: Joi.string().min(6).empty(''), // Updated to match your model
-        confirmPassword: Joi.string().valid(Joi.ref('acc_passwordHash')).empty(''), // Updated to match your model
-    };
+    const schema = Joi.object({
+        acc_firstname: Joi.string().empty(''),
+        acc_lastname: Joi.string().empty(''),
+        acc_email: Joi.string().email().empty(''),
+        acc_passwordHash: Joi.string().min(6).empty(''),
+        acc_address: Joi.string().empty(''),
+        confirmPassword: Joi.string().valid(Joi.ref('acc_passwordHash')).empty('')
 
-    if (req.auth.role === Role.Admin) {
-        schemaRules.role = Joi.string().valid(Role.Admin, Role.User).empty('');
-    }
-
-    const schema = Joi.object(schemaRules).with('acc_passwordHash', 'confirmPassword');
+    });
     validateRequest(req, next, schema);
 }
 
 function update(req, res, next) {
-    if (Number(req.params.id) !== req.auth.id && req.auth.role !== Role.Admin) {
-        return res.status(401).json({ message: 'Unauthorized' });
-    }
-
-    accountService.update(req.params.id, req.body)
-        .then(account => res.json(account))
+    accountService.update(req.params.id, req.body, req.file)
+        .then(account => {
+            res.json(account);
+        })
         .catch(next);
 }
 
-function _delete(req, res, next) {
-    if (Number(req.params.id) !== req.auth.id && req.auth.role !== Role.Admin) {
-        return res.status(401).json({ message: 'Unauthorized' });
-    }
 
+function _delete(req, res, next) {
     accountService.delete(req.params.id)
-        .then(() => res.json({ message: 'Account deleted successfully' }))
+        .then(() => {
+            res.json({ message: 'Account deleted successfully' });
+        })
         .catch(next);
 }
 

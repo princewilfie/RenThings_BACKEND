@@ -8,6 +8,8 @@ function model(sequelize) {
         acc_passwordHash: { type: DataTypes.STRING, allowNull: false },
         acc_firstName: { type: DataTypes.STRING, allowNull: false },
         acc_lastName: { type: DataTypes.STRING, allowNull: false },
+        acc_image: { type: DataTypes.STRING, allowNull: true },
+        acc_address: { type: DataTypes.STRING, allowNull: false }, 
         acc_acceptTerms: { type: DataTypes.BOOLEAN },
         acc_role: { type: DataTypes.STRING, allowNull: false },
         acc_verificationToken: { type: DataTypes.STRING },

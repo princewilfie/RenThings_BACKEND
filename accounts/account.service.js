@@ -4,8 +4,11 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const crypto = require("crypto");
 const sendEmail = require('_helpers/send-email');
+const path = require('path');
 const db = require('_helpers/db');
 const Role = require('_helpers/role');
+
+
 
 module.exports = {
     authenticate,
@@ -164,23 +167,40 @@ async function create(params) {
     return basicDetails(account);
 }
 
-async function update(id, params) {
-    const account = await getAccount(id);
+async function update(id, params, file) {
+    try {
+        const account = await getAccount(id);
+        
+        if (file) { 
+            const newImagePath = path.basename(file.path);  // Safely access file path
+            params.acc_image = newImagePath;
+        } else {
+            throw new Error("Image file is missing or path is not defined.");
+        }
+        
 
-    if (params.acc_email && account.acc_email !== params.acc_email && await db.Account.findOne({ where: { acc_email: params.acc_email } })) {
-        throw 'Email "' + params.acc_email + '" is already taken';
+        // Validate email if it has changed
+        const emailChanged = params.acc_email && account.acc_email !== params.acc_email;
+        if (emailChanged && await db.Account.findOne({ where: { acc_email: params.acc_email } })) {
+            throw new Error('Email "' + params.acc_email + '" is already registered');
+        }
+
+        // Hash password if provided
+        if (params.acc_passwordHash) {
+            params.acc_passwordHash = bcrypt.hashSync(params.acc_passwordHash, 10);
+        }
+
+        // Copy params to account and save
+        Object.assign(account, params);
+        await account.save();
+
+        return basicDetails(account);
+    } catch (error) {
+        // Handle errors appropriately, possibly logging the error
+        throw new Error('Failed to update account: ' + error.message);
     }
-
-    if (params.acc_password) {
-        params.acc_passwordHash = await hash(params.acc_password);
-    }
-
-    Object.assign(account, params);
-    account.acc_updated = Date.now();
-    await account.save();
-
-    return basicDetails(account);
 }
+
 
 async function _delete(id) {
     const account = await getAccount(id);
@@ -221,8 +241,8 @@ function randomTokenString() {
 }
 
 function basicDetails(account) {
-    const { id, acc_firstName, acc_lastName, acc_email, acc_role, acc_created, acc_updated, acc_isVerified } = account;
-    return { id, acc_firstName, acc_lastName, acc_email, acc_role, acc_created, acc_updated, acc_isVerified };
+    const { id, acc_firstName, acc_lastName, acc_email, acc_role, acc_created, acc_updated, acc_isVerified, acc_image, acc_address } = account;
+    return { id, acc_firstName, acc_lastName, acc_email, acc_role, acc_created, acc_updated, acc_isVerified, acc_image, acc_address };
 }
 
 async function sendVerificationEmail(account, origin) {
