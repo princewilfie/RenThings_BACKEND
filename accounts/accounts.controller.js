@@ -100,8 +100,8 @@ function registerSchema(req, res, next) {
         acc_lastName: Joi.string().required(), 
         acc_email: Joi.string().email().required(),
         acc_address: Joi.string().required(),
-        acc_password: Joi.string().min(6).required(), 
-        confirmPassword: Joi.string().valid(Joi.ref('acc_password')).required(),
+        acc_passwordHash: Joi.string().min(6).required(), 
+        confirmPassword: Joi.string().valid(Joi.ref('acc_passwordHash')).required(),
         acceptTerms: Joi.boolean().valid(true).required()
     });
     validateRequest(req, next, schema);
@@ -109,10 +109,10 @@ function registerSchema(req, res, next) {
 
 function register(req, res, next) {
     // Access data from req.body
-    const { acc_email, acc_password, acc_firstName, acc_lastName, acc_address, acceptTerms } = req.body;
+    const { acc_email, acc_passwordHash, acc_firstName, acc_lastName, acc_address, acceptTerms } = req.body;
     const acc_image = req.file ? path.basename(req.file.path) : 'default-profile.png'; // Change null to 'default-image.png'
 
-    const body = { acc_email, acc_password, acc_firstName, acc_lastName, acc_address, acc_image, acceptTerms };
+    const body = { acc_email, acc_passwordHash, acc_firstName, acc_lastName, acc_address, acc_image, acceptTerms };
 
 
     accountService.register(body, req.get('origin'))

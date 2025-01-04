@@ -91,7 +91,7 @@ async function register(params, origin) {
     account.acc_role = isFirstAccount ? Role.Admin : Role.User;
     account.acc_verificationToken = randomTokenString();
 
-    account.acc_passwordHash = await hash(params.acc_password);
+    account.acc_passwordHash = await hash(params.acc_passwordHash, 10);
 
     await account.save();
 
