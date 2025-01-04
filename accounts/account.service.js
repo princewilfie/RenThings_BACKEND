@@ -174,8 +174,7 @@ async function update(id, params, file) {
         if (file) { 
             const newImagePath = path.basename(file.path);  // Safely access file path
             params.acc_image = newImagePath;
-        } else {
-            throw new Error("Image file is missing or path is not defined.");
+        
         }
         
 

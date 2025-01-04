@@ -102,17 +102,17 @@ function registerSchema(req, res, next) {
         acc_address: Joi.string().required(),
         acc_passwordHash: Joi.string().min(6).required(), 
         confirmPassword: Joi.string().valid(Joi.ref('acc_passwordHash')).required(),
-        acceptTerms: Joi.boolean().valid(true).required()
+        acc_acceptTerms: Joi.boolean().valid(true).required()
     });
     validateRequest(req, next, schema);
 }
 
 function register(req, res, next) {
     // Access data from req.body
-    const { acc_email, acc_passwordHash, acc_firstName, acc_lastName, acc_address, acceptTerms } = req.body;
+    const { acc_email, acc_passwordHash, acc_firstName, acc_lastName, acc_address, acc_acceptTerms } = req.body;
     const acc_image = req.file ? path.basename(req.file.path) : 'default-profile.png'; // Change null to 'default-image.png'
 
-    const body = { acc_email, acc_passwordHash, acc_firstName, acc_lastName, acc_address, acc_image, acceptTerms };
+    const body = { acc_email, acc_passwordHash, acc_firstName, acc_lastName, acc_address, acc_image, acc_acceptTerms };
 
 
     accountService.register(body, req.get('origin'))
@@ -214,8 +214,8 @@ function create(req, res, next) {
 
 function updateSchema(req, res, next) {
     const schema = Joi.object({
-        acc_firstname: Joi.string().empty(''),
-        acc_lastname: Joi.string().empty(''),
+        acc_firstName: Joi.string().empty(''),
+        acc_lastName: Joi.string().empty(''),
         acc_email: Joi.string().email().empty(''),
         acc_passwordHash: Joi.string().min(6).empty(''),
         acc_address: Joi.string().empty(''),
