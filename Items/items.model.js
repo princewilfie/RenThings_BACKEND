@@ -21,6 +21,10 @@ function model(sequelize) {
             type: DataTypes.STRING, 
             allowNull: false 
         },
+        Item_price: {
+            type: DataTypes.FLOAT,
+            allowNull: false
+        },
         Item_Description: { 
             type: DataTypes.TEXT, 
             allowNull: true 

@@ -14,29 +14,40 @@ async function initialize() {
 
     const sequelize = new Sequelize(database, user, password, { dialect: 'mysql' });
 
-    // Initialize Account model
     db.Account = require('../accounts/account.model')(sequelize);
 
-    // Initialize Item model after Account model
+    // item
     db.Item = require('../Items/items.model')(sequelize);
 
-    // Initialize RefreshToken model
     db.RefreshToken = require('../accounts/refresh-token.model')(sequelize);
 
-    // Define associations after models are initialized
-    db.Account.hasMany(db.Item, {
-        foreignKey: 'acc_id',
-        onDelete: 'CASCADE',
-    });
-    db.Item.belongsTo(db.Account, {
-        foreignKey: 'acc_id',
-        as: 'account',
+    
+    //chat
+    db.Chat = require('../chat/chat.model')(sequelize);
+
+
+    Object.values(db).forEach((model) => {
+        if (model.associate) {
+            model.associate(db);
+        }
     });
 
-    db.Account.hasMany(db.RefreshToken, {
-        onDelete: 'CASCADE',
-    });
+
+    // Define additional associations
+
+    //item
+    db.Account.hasMany(db.Item, { foreignKey: 'acc_id', onDelete: 'CASCADE' });
+    db.Item.belongsTo(db.Account, { foreignKey: 'acc_id', as: 'account' });
+
+    db.Account.hasMany(db.RefreshToken, { onDelete: 'CASCADE' });
     db.RefreshToken.belongsTo(db.Account);
+    
+    //chat
+    db.Account.hasMany(db.Chat, { as: 'SentMessages', foreignKey: 'sender_id', onDelete: 'CASCADE' });
+    db.Account.hasMany(db.Chat, { as: 'ReceivedMessages', foreignKey: 'receiver_id', onDelete: 'CASCADE' });
+
+
+    
 
     // Sync the database
     await sequelize.sync();

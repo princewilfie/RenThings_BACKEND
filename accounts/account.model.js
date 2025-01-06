@@ -4,6 +4,7 @@ module.exports = model;
 
 function model(sequelize) {
     const attributes = {
+        id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }, 
         acc_email: { type: DataTypes.STRING, allowNull: false },
         acc_passwordHash: { type: DataTypes.STRING, allowNull: false },
         acc_firstName: { type: DataTypes.STRING, allowNull: false },

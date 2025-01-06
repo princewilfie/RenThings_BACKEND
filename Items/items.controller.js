@@ -20,6 +20,7 @@ function createSchema(req, res, next) {
     const schema = Joi.object({
         acc_id: Joi.number().required(),
         Item_name: Joi.string().required(),
+        Item_price: Joi.number().required(),
         Item_Description: Joi.string().allow('', null),
     });
     validateRequest(req, next, schema);
@@ -29,6 +30,7 @@ function updateSchema(req, res, next) {
     const schema = Joi.object({
         acc_id: Joi.number().empty(''),
         Item_name: Joi.string().empty(''),
+        Item_price: Joi.number().empty(''),
         Item_Description: Joi.string().allow('', null),
         acc_address: Joi.string().empty('')
     });
