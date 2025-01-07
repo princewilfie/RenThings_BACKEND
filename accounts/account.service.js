@@ -23,7 +23,8 @@ module.exports = {
     getById,
     create,
     update,
-    delete: _delete
+    delete: _delete,
+    updateSubscription
 };
 
 async function authenticate({ acc_email, acc_passwordHash, ipAddress }) {
@@ -240,8 +241,8 @@ function randomTokenString() {
 }
 
 function basicDetails(account) {
-    const { id, acc_firstName, acc_lastName, acc_email, acc_role, acc_created, acc_updated, acc_isVerified, acc_image, acc_address } = account;
-    return { id, acc_firstName, acc_lastName, acc_email, acc_role, acc_created, acc_updated, acc_isVerified, acc_image, acc_address };
+    const { id, acc_firstName, acc_lastName, acc_email, acc_role, acc_created, acc_updated, acc_isVerified, acc_image, acc_address, acc_status, acc_subscription } = account;
+    return { id, acc_firstName, acc_lastName, acc_email, acc_role, acc_created, acc_updated, acc_isVerified, acc_image, acc_address, acc_status, acc_subscription };
 }
 
 async function sendVerificationEmail(account, origin) {
@@ -298,4 +299,20 @@ async function sendPasswordResetEmail(account, origin) {
         html: `<h4>Reset Password Email</h4>
                ${message}`
     });
+}
+
+async function updateSubscription(id, subscriptionStatus) {
+    const account = await getAccount(id);
+
+    // Validate subscription status
+    if (!['disabled', 'active'].includes(subscriptionStatus)) {
+        throw new Error('Invalid subscription status');
+    }
+
+    // Update subscription
+    account.acc_subscription = subscriptionStatus;
+    account.acc_updated = new Date();
+    await account.save();
+
+    return basicDetails(account);
 }

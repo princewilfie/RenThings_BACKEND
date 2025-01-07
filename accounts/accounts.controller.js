@@ -23,6 +23,7 @@ router.put('/:id', multer.single('acc_image'), (req, res, next) => {
     updateSchema(req, res, next);
 }, update);
 
+router.put('/:id/subscription', authorize(Role.Admin), updateSubscriptionSchema, updateSubscription);
 router.put('/:id', authorize(), updateSchema, update);
 
 
@@ -219,6 +220,7 @@ function updateSchema(req, res, next) {
         acc_email: Joi.string().email().empty(''),
         acc_passwordHash: Joi.string().min(6).empty(''),
         acc_address: Joi.string().empty(''),
+        acc_status: Joi.string().empty(''), 
         confirmPassword: Joi.string().valid(Joi.ref('acc_passwordHash')).empty('')
 
     });
@@ -241,6 +243,20 @@ function _delete(req, res, next) {
         })
         .catch(next);
 }
+
+function updateSubscriptionSchema(req, res, next) {
+    const schema = Joi.object({
+        acc_subscription: Joi.string().valid('disabled', 'active').required()
+    });
+    validateRequest(req, next, schema);
+}
+
+function updateSubscription(req, res, next) {
+    accountService.updateSubscription(req.params.id, req.body.acc_subscription)
+        .then(account => res.json(account))
+        .catch(next);
+}
+
 
 // helper functions
 

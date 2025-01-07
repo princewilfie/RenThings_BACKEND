@@ -17,12 +17,19 @@ function model(sequelize) {
         acc_verified: { type: DataTypes.DATE },
         acc_resetToken: { type: DataTypes.STRING },
         acc_resetTokenExpires: { type: DataTypes.DATE },
+        acc_status: { type: DataTypes.STRING, defaultValue: 'Active' },
         acc_passwordReset: { type: DataTypes.DATE },
         acc_created: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
         acc_updated: { type: DataTypes.DATE },
         acc_isVerified: {
             type: DataTypes.VIRTUAL,
             get() { return !!(this.acc_verified || this.acc_passwordReset); } // Fixed property name
+        },
+        
+        acc_subscription: { 
+            type: DataTypes.ENUM('disabled', 'active'),
+            defaultValue: 'disabled',
+            allowNull: false
         }
     };
 
