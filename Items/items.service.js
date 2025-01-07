@@ -7,7 +7,9 @@ module.exports = {
     create,
     update,
     delete: _delete,
-    getByAccountId
+    getByAccountId,
+    approveItem,  
+    rejectItem      
 };
 
 async function getAll() {
@@ -36,19 +38,34 @@ async function getByAccountId(acc_id) {
 }
 
 async function create(params, file) {
-    // validate if account exists
     const account = await db.Account.findByPk(params.acc_id);
     if (!account) throw 'Account not found';
+
+    // Check if the account subscription is disabled
+    if (account.acc_subscription === 'disabled') {
+        // Count how many items the user has already created
+        const itemCount = await db.Item.count({ where: { acc_id: params.acc_id } });
+
+        // If the user has already created 2 items, prevent creating more
+        if (itemCount >= 2) {
+            throw 'Subscribe now to activate the unlimited posting of items in our platform!.';
+        }
+    }
 
     if (file) {
         params.Item_image = path.basename(file.path);
     }
+
+    // Default values for new attributes
+    params.Item_status = params.Item_status || 'Available';
+    params.Item_approvalstatus = params.Item_approvalstatus || 'Pending';
 
     const item = new db.Item(params);
     await item.save();
     
     return item;
 }
+
 
 async function update(Item_id, params, file) {
     const item = await getById(Item_id);
@@ -70,7 +87,47 @@ async function update(Item_id, params, file) {
     return item;
 }
 
+
 async function _delete(Item_id) {
     const item = await getById(Item_id);
     await item.destroy();
 }
+
+
+async function approveItem(Item_id) {
+    const item = await getById(Item_id);
+    
+    if (item.Item_approvalstatus === 'Approved') {
+        throw 'Item is already approved';
+    }
+
+    item.Item_approvalstatus = 'Approved';
+    item.Item_status = 'Available'; // Set status to Unavailable
+    item.approval_date = new Date();
+    item.updated_at = new Date();
+    await item.save();
+
+    return item;
+}
+
+// New function for rejecting items
+async function rejectItem(Item_id, rejectionReason) {
+    const item = await getById(Item_id);
+    
+    if (item.Item_approvalstatus === 'Rejected') {
+        throw 'Item is already rejected';
+    }
+
+    // Update item approval status and status
+    item.Item_approvalstatus = 'Rejected';
+    item.Item_status = 'Unavailable'; // Set status to Unavailable
+    item.rejection_reason = rejectionReason;
+    item.rejection_date = new Date();
+    item.updated_at = new Date();
+    await item.save();
+
+    return item;
+}
+
+
+

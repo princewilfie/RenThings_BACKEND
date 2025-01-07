@@ -12,6 +12,8 @@ router.get('/:id', authorize(), getById);
 router.get('/account/:acc_id', authorize(), getByAccountId);
 router.post('/', authorize(), multer.single('Item_image'), createSchema, create);
 router.put('/:id', authorize(), multer.single('Item_image'), updateSchema, update);
+router.put('/:id/approve', authorize('Admin'), approve);
+router.put('/:id/reject', authorize('Admin'),  reject);
 router.delete('/:id', authorize(), _delete);
 
 module.exports = router;
@@ -70,5 +72,17 @@ function update(req, res, next) {
 function _delete(req, res, next) {
     itemService.delete(req.params.id)
         .then(() => res.json({ message: 'Item deleted successfully' }))
+        .catch(next);
+}
+
+function approve(req, res, next) {
+    itemService.approveItem(req.params.id)
+        .then(item => res.json(item))
+        .catch(next);
+}
+
+function reject(req, res, next) {
+    itemService.rejectItem(req.params.id, req.body.rejection_reason)
+        .then(item => res.json(item))
         .catch(next);
 }

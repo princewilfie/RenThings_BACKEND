@@ -33,6 +33,16 @@ function model(sequelize) {
             type: DataTypes.STRING, 
             allowNull: true 
         },
+        Item_status: { 
+            type: DataTypes.STRING, 
+            allowNull: false,
+            defaultValue: 'Available' // Default status
+        },
+        Item_approvalstatus: { 
+            type: DataTypes.STRING, 
+            allowNull: false,
+            defaultValue: 'Pending' // Default approval status
+        },
         created_at: { 
             type: DataTypes.DATE, 
             allowNull: false, 
