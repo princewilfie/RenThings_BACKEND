@@ -9,7 +9,8 @@ module.exports = {
     delete: _delete,
     getByAccountId,
     approveItem,  
-    rejectItem      
+    rejectItem,  
+    getAllApproved    
 };
 
 async function getAll() {
@@ -129,5 +130,10 @@ async function rejectItem(Item_id, rejectionReason) {
     return item;
 }
 
+async function getAllApproved() {
+    return await db.Item.findAll({
+        where: { Item_approvalstatus: 'Approved' }
+    });
+}
 
 

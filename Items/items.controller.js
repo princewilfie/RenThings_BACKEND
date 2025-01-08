@@ -8,7 +8,8 @@ const itemService = require('./items.service');
 
 // routes
 router.get('/', authorize(), getAll);
-router.get('/:id', authorize(), getById);
+router.get('/approved', getAllApproved);
+router.get('/:id', getById);
 router.get('/account/:acc_id', authorize(), getByAccountId);
 router.post('/', authorize(), multer.single('Item_image'), createSchema, create);
 router.put('/:id', authorize(), multer.single('Item_image'), updateSchema, update);
@@ -46,6 +47,7 @@ function getAll(req, res, next) {
 }
 
 function getById(req, res, next) {
+    console.log('Fetching item with ID:', req.params.id); // Add this line
     itemService.getById(req.params.id)
         .then(item => item ? res.json(item) : res.sendStatus(404))
         .catch(next);
@@ -84,5 +86,11 @@ function approve(req, res, next) {
 function reject(req, res, next) {
     itemService.rejectItem(req.params.id, req.body.rejection_reason)
         .then(item => res.json(item))
+        .catch(next);
+}
+
+function getAllApproved(req, res, next) {
+    itemService.getAllApproved()
+        .then(items => res.json(items))
         .catch(next);
 }
