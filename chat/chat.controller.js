@@ -60,4 +60,14 @@ router.put('/read/:message_id', authorize(), async (req, res, next) => {
     }
 });
 
+router.get('/participants', authorize(), async (req, res, next) => {
+    try {
+        const participants = await chatService.getChatParticipants(req.auth.id);
+        res.json(participants);
+    } catch (error) {
+        next(error);
+    }
+});
+
+
 module.exports = router;

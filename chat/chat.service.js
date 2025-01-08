@@ -6,7 +6,8 @@ module.exports = {
     sendMessage,
     getConversation,
     getUnreadMessages,
-    markAsRead
+    markAsRead,
+    getChatParticipants
 };
 
 async function sendMessage(data) {
@@ -68,3 +69,24 @@ async function markAsRead(message_id, user_id) {
     }
     return message;
 }
+
+async function getChatParticipants(user_id) {
+    const chats = await db.Chat.findAll({
+        where: {
+            [Op.or]: [
+                { sender_id: user_id },
+                { receiver_id: user_id }
+            ]
+        },
+        attributes: ['sender_id', 'receiver_id'],
+        group: ['sender_id', 'receiver_id'] // Ensure no duplicates
+    });
+
+    const participantIds = chats.map(chat => chat.sender_id === user_id ? chat.receiver_id : chat.sender_id);
+
+    return db.Account.findAll({
+        where: { id: { [Op.in]: participantIds } },
+        attributes: ['id', 'acc_firstname', 'acc_lastname']
+    });
+}
+
