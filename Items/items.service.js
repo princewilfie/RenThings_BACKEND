@@ -1,5 +1,7 @@
 const db = require('_helpers/db');
 const path = require('path');
+const sendEmail = require('_helpers/send-email');
+
 
 module.exports = {
     getAll,
@@ -97,38 +99,64 @@ async function _delete(Item_id) {
 
 async function approveItem(Item_id) {
     const item = await getById(Item_id);
-    
+
     if (item.Item_approvalstatus === 'Approved') {
         throw 'Item is already approved';
     }
 
     item.Item_approvalstatus = 'Approved';
-    item.Item_status = 'Available'; // Set status to Unavailable
+    item.Item_status = 'Available';
     item.approval_date = new Date();
     item.updated_at = new Date();
     await item.save();
 
+    // Fetch account details for notification
+    const account = await db.Account.findByPk(item.acc_id);
+    if (account) {
+        const emailData = {
+            to: account.acc_email,
+            subject: 'Item Approval Notification',
+            html: `<p>Dear ${account.acc_firstName},</p>
+                   <p>Your item <strong>${item.Item_name}</strong> has been approved and is now available on our platform.</p>
+                   <p>Thank you for using our services!</p>`
+        };
+        await sendEmail(emailData);
+    }
+
     return item;
 }
 
-// New function for rejecting items
 async function rejectItem(Item_id, rejectionReason) {
     const item = await getById(Item_id);
-    
+
     if (item.Item_approvalstatus === 'Rejected') {
         throw 'Item is already rejected';
     }
 
-    // Update item approval status and status
     item.Item_approvalstatus = 'Rejected';
-    item.Item_status = 'Unavailable'; // Set status to Unavailable
+    item.Item_status = 'Unavailable';
     item.rejection_reason = rejectionReason;
     item.rejection_date = new Date();
     item.updated_at = new Date();
     await item.save();
 
+    // Fetch account details for notification
+    const account = await db.Account.findByPk(item.acc_id);
+    if (account) {
+        const emailData = {
+            to: account.acc_email,
+            subject: 'Item Rejection Notification',
+            html: `<p>Dear ${account.acc_firstName},</p>
+                   <p>We regret to inform you that your item <strong>${item.Item_name}</strong> has been rejected for the following reason:</p>
+                   <p><em>${rejectionReason}</em></p>
+                   <p>If you have any questions or need assistance, please contact our support team.</p>`
+        };
+        await sendEmail(emailData);
+    }
+
     return item;
 }
+
 
 async function getAllApproved() {
     return await db.Item.findAll({
