@@ -7,7 +7,7 @@
         "database" : "RenThings"
     },
     "secret": "6c32701b-3329-431e-b95f-5604da73e4fc",
-    "emailFrom": "JuanBayan",
+    "emailFrom": "RenThings",
     "smtpOptions" : {
         "service": "Gmail",
         "host": "smtp.gmail.com", 
