@@ -1,11 +1,17 @@
 require('rootpath')();
 const express = require('express');
 const app = express();
+const http = require('http');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const errorHandler = require('_middleware/error-handler');
 const path = require('path'); 
+const socket = require('_helpers/socket'); // Import the socket module
+
+
+const server = http.createServer(app);
+socket.init(server);  // <-- Ensure socket is initialized before routes
 
 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -35,4 +41,4 @@ app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 // start server
 const port = process.env.NODE_ENV === 'production' ? (process.env.PORT || 80) : 4000;
-app.listen(port, () => console.log('Server listening on port ' + port));
+server.listen(port, () => console.log('Server listening on port ' + port));

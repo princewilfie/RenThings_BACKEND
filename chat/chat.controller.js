@@ -4,6 +4,7 @@ const Joi = require('joi');
 const validateRequest = require('../_middleware/validate-request');
 const authorize = require('../_middleware/authorize');
 const chatService = require('./chat.service');
+const socket = require('_helpers/socket'); // Import the socket module
 
 // Message validation schema
 function sendMessageSchema(req, res, next) {
@@ -17,16 +18,21 @@ function sendMessageSchema(req, res, next) {
 // Routes
 router.post('/send', authorize(), sendMessageSchema, async (req, res, next) => {
     try {
-        console.log('User in request:', req.user); // Debug user object
         const messageData = {
             sender_id: req.auth.id,
             receiver_id: req.body.receiver_id,
-            message: req.body.message
+            message: req.body.message,
         };
 
-        const chat = await chatService.sendMessage(messageData);
-        res.json(chat);
+        const savedMessage = await chatService.sendMessage(messageData);
+
+        // Emit the message using Socket.IO
+        const io = socket.getIO();
+        io.to(messageData.receiver_id.toString()).emit('new_message', savedMessage);
+
+        res.json(savedMessage);
     } catch (error) {
+        console.error('Error Sending Message:', error);
         next(error);
     }
 });

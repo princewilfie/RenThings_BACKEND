@@ -25,7 +25,7 @@ async function sendMessage(data) {
 async function getConversation(user_id, other_id) {
     return await db.Chat.findAll({
         where: {
-            [Op.or]: [ // Use Op from the destructured object
+            [Op.or]: [
                 { sender_id: user_id, receiver_id: other_id },
                 { sender_id: other_id, receiver_id: user_id }
             ]
@@ -34,17 +34,18 @@ async function getConversation(user_id, other_id) {
             {
                 model: db.Account,
                 as: 'sender',
-                attributes: ['acc_firstname', 'acc_lastname']
+                attributes: ['acc_firstname', 'acc_lastname', 'acc_image'] // Added acc_image here
             },
             {
                 model: db.Account,
                 as: 'receiver',
-                attributes: ['acc_firstname', 'acc_lastname']
+                attributes: ['acc_firstname', 'acc_lastname', 'acc_image'] // Added acc_image here
             }
         ],
         order: [['created_at', 'ASC']]
     });
 }
+
 
 async function getUnreadMessages(user_id) {
     return await db.Chat.count({
