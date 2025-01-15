@@ -87,7 +87,7 @@ async function getChatParticipants(user_id) {
 
     return db.Account.findAll({
         where: { id: { [Op.in]: participantIds } },
-        attributes: ['id', 'acc_firstname', 'acc_lastname']
+        attributes: ['id', 'acc_firstname', 'acc_lastname', 'acc_image']
     });
 }
 
