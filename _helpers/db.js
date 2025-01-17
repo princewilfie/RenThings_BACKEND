@@ -21,6 +21,10 @@ async function initialize() {
 
     db.RefreshToken = require('../accounts/refresh-token.model')(sequelize);
 
+    //subscription
+    db.Subscription = require('../subscription/subscription.model')(sequelize); // New subscription model
+
+
     
     //chat
     db.Chat = require('../chat/chat.model')(sequelize);
@@ -46,7 +50,11 @@ async function initialize() {
     db.Account.hasMany(db.Chat, { as: 'SentMessages', foreignKey: 'sender_id', onDelete: 'CASCADE' });
     db.Account.hasMany(db.Chat, { as: 'ReceivedMessages', foreignKey: 'receiver_id', onDelete: 'CASCADE' });
 
-
+    // Account -> Subscription
+    db.Account.hasMany(db.Subscription, { foreignKey: 'acc_id', onDelete: 'CASCADE' }); 
+    db.Subscription.belongsTo(db.Account, { foreignKey: 'acc_id', as: 'account' }); 
+    
+    
     
 
     // Sync the database
