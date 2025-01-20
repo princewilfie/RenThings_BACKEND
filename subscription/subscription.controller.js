@@ -8,11 +8,13 @@ const multer = require('_middleware/multer-config');
 
 
 // Routes
-router.get('/', getAll);
-router.get('/:id', getById);
+router.get('/approved', getAllApproved); // Matches /approved
+router.get('/:id', getById); // Matches /:id
+router.get('/', getAll); // Matches /
 router.post('/', authorize(), multer.single('subscription_receipt'), createSchema, create);
 router.put('/:id', authorize(), multer.single('subscription_receipt'), updateSchema, update);
 router.delete('/:id', _delete);
+
 
 module.exports = router;
 
@@ -107,5 +109,13 @@ function _delete(req, res, next) {
     subscriptionService
         .delete(req.params.id)
         .then(() => res.json({ message: 'Subscription deleted successfully' }))
+        .catch(next);
+}
+
+
+function getAllApproved(req, res, next) {
+    subscriptionService
+        .getAllApproved()
+        .then(subscriptions => res.json(subscriptions))
         .catch(next);
 }

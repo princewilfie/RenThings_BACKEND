@@ -7,6 +7,7 @@ module.exports = {
     create,
     update,
     delete: _delete,
+    getAllApproved
 };
 
 async function getAll() {
@@ -131,3 +132,23 @@ async function getSubscription(id) {
     if (!subscription) throw 'Subscription not found';
     return subscription;
 }
+
+
+async function getAllApproved() {
+    return await db.Account.findAll({
+        where: {
+            acc_subscription: 'active' // Filter only accounts with active subscriptions
+        },
+        attributes: [
+            'acc_email', 
+            'acc_firstName', 
+            'acc_lastName', 
+            'acc_image', 
+            'acc_subscription'
+        ] 
+    });
+}
+
+
+
+
