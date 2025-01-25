@@ -26,6 +26,7 @@ app.use('/accounts', require('./accounts/accounts.controller'));
 app.use('/items', require('./Items/items.controller'));  // Add items routes
 app.use('/chat', require('./chat/chat.controller'));
 app.use('/subscription', require('./subscription/subscription.controller'));
+app.use('/rentitem', require('./rentitem/rentitem.controller'));
 
 // swagger docs route
 app.use('/api-docs', require('_helpers/swagger'));

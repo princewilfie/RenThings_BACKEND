@@ -25,9 +25,12 @@ async function initialize() {
     db.Subscription = require('../subscription/subscription.model')(sequelize); // New subscription model
 
 
-    
     //chat
     db.Chat = require('../chat/chat.model')(sequelize);
+
+    //rentitem
+    db.RentItem = require('../rentitem/rentitem.model')(sequelize);
+
 
 
     Object.values(db).forEach((model) => {
@@ -54,8 +57,13 @@ async function initialize() {
     db.Account.hasMany(db.Subscription, { foreignKey: 'acc_id', onDelete: 'CASCADE' }); 
     db.Subscription.belongsTo(db.Account, { foreignKey: 'acc_id', as: 'account' }); 
     
-    
-    
+    // rentitem - items
+    db.Item.hasMany(db.RentItem, { foreignKey: 'Item_id', as: 'rentalItems' });
+    db.RentItem.belongsTo(db.Item, { foreignKey: 'Item_id', as: 'rentedItem' });
+
+    db.Account.hasMany(db.RentItem, { foreignKey: 'renter_acc_id', as: 'rentals' });
+    db.RentItem.belongsTo(db.Account, { foreignKey: 'renter_acc_id', as: 'renterAccount' });
+            
 
     // Sync the database
     await sequelize.sync();
