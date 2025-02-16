@@ -1,7 +1,5 @@
 const { DataTypes } = require('sequelize');
 
-module.exports = model;
-
 function model(sequelize) {
     const attributes = {
         id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
@@ -19,8 +17,29 @@ function model(sequelize) {
         subscription_receipt: { 
             type: DataTypes.STRING, 
             allowNull: false 
-        },   
-     };
+        },
+        status: {
+            type: DataTypes.ENUM('pending', 'approved', 'rejected'),
+            defaultValue: 'pending',
+            allowNull: false
+        },
+        admin_remarks: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        reviewed_by: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            references: {
+                model: 'accounts',
+                key: 'id'
+            }
+        },
+        reviewed_at: {
+            type: DataTypes.DATE,
+            allowNull: true
+        }
+    };
 
     const options = {
         timestamps: false,
@@ -28,3 +47,5 @@ function model(sequelize) {
 
     return sequelize.define('subscription', attributes, options);
 }
+
+module.exports = model;

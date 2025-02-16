@@ -1,0 +1,95 @@
+BEGIN:VCALENDAR
+METHOD:REQUEST
+PRODID:Microsoft Exchange Server 2010
+VERSION:2.0
+BEGIN:VTIMEZONE
+TZID:Singapore Standard Time
+BEGIN:STANDARD
+DTSTART:16010101T000000
+TZOFFSETFROM:+0800
+TZOFFSETTO:+0800
+END:STANDARD
+BEGIN:DAYLIGHT
+DTSTART:16010101T000000
+TZOFFSETFROM:+0800
+TZOFFSETTO:+0800
+END:DAYLIGHT
+END:VTIMEZONE
+BEGIN:VEVENT
+ORGANIZER;CN=Ivan Alfonso Tubelleja:mailto:i.tubelleja@jobtarget.com
+ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE;CN=johnaxelgu
+ idayawan3@gmail.com:mailto:johnaxelguidayawan3@gmail.com
+ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE;CN=princewilf
+ ieverame@gmail.com:mailto:princewilfieverame@gmail.com
+ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE;CN=namalyzhat
+ ejeno@mail.com:mailto:namalyzhatejeno@mail.com
+ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE;CN=ninyyaadoy
+ ohim@gmail.com:mailto:ninyyaadoyohim@gmail.com
+ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE;CN=cuencaneil
+ 420@gmail.com:mailto:cuencaneil420@gmail.com
+ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE;CN=Jude Balta
+ zar:mailto:j.baltazar@jobtarget.com
+ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE;CN=Raffy Lou 
+ Dupal-ag:mailto:r.dupal-ag@jobtarget.com
+DESCRIPTION;LANGUAGE=en-US:\n\n\n__________________________________________
+ ______________________________________\nMicrosoft Teams Need help?<https:/
+ /aka.ms/JoinTeamsMeeting?omkt=en-US>\nJoin the meeting now<https://teams.m
+ icrosoft.com/l/meetup-join/19%3ameeting_ZWRlYzI4YzItYzIzOS00ODNkLTllYzctMm
+ NhMDRmOWUwNjE2%40thread.v2/0?context=%7b%22Tid%22%3a%22ae1483c9-7d7a-4bd2-
+ bde7-97ad29546f55%22%2c%22Oid%22%3a%227b0f9164-f12d-495f-a04d-cd9ec8108931
+ %22%7d>\nMeeting ID: 257 384 755 165\nPasscode: H5ZY9CF6\n________________
+ ________________\nFor organizers: Meeting options<https://teams.microsoft.
+ com/meetingOptions/?organizerId=7b0f9164-f12d-495f-a04d-cd9ec8108931&tenan
+ tId=ae1483c9-7d7a-4bd2-bde7-97ad29546f55&threadId=19_meeting_ZWRlYzI4YzItY
+ zIzOS00ODNkLTllYzctMmNhMDRmOWUwNjE2@thread.v2&messageId=0&language=en-US>\
+ n_________________________________________________________________________
+ _______\n
+UID:040000008200E00074C5B7101A82E00800000000A534A10CE747DB01000000000000000
+ 0100000005B2DD9397973BE4CB6D9F53CEE5247DB
+SUMMARY;LANGUAGE=en-US:QA INterns - Technical Interview
+DTSTART;TZID=Singapore Standard Time:20241209T210000
+DTEND;TZID=Singapore Standard Time:20241209T220000
+CLASS:PUBLIC
+PRIORITY:5
+DTSTAMP:20241206T135923Z
+TRANSP:OPAQUE
+STATUS:CONFIRMED
+SEQUENCE:0
+LOCATION;LANGUAGE=en-US:Microsoft Teams Meeting
+X-MICROSOFT-CDO-APPT-SEQUENCE:0
+X-MICROSOFT-CDO-OWNERAPPTID:2123116965
+X-MICROSOFT-CDO-BUSYSTATUS:TENTATIVE
+X-MICROSOFT-CDO-INTENDEDSTATUS:BUSY
+X-MICROSOFT-CDO-ALLDAYEVENT:FALSE
+X-MICROSOFT-CDO-IMPORTANCE:1
+X-MICROSOFT-CDO-INSTTYPE:0
+X-MICROSOFT-ONLINEMEETINGINFORMATION:{"OnlineMeetingChannelId":null\,"Onlin
+ eMeetingProvider":3}
+X-MICROSOFT-SKYPETEAMSMEETINGURL:https://teams.microsoft.com/l/meetup-join/
+ 19%3ameeting_ZWRlYzI4YzItYzIzOS00ODNkLTllYzctMmNhMDRmOWUwNjE2%40thread.v2/
+ 0?context=%7b%22Tid%22%3a%22ae1483c9-7d7a-4bd2-bde7-97ad29546f55%22%2c%22O
+ id%22%3a%227b0f9164-f12d-495f-a04d-cd9ec8108931%22%7d
+X-MICROSOFT-SCHEDULINGSERVICEUPDATEURL:https://api.scheduler.teams.microsof
+ t.com/teams/ae1483c9-7d7a-4bd2-bde7-97ad29546f55/7b0f9164-f12d-495f-a04d-c
+ d9ec8108931/19_meeting_ZWRlYzI4YzItYzIzOS00ODNkLTllYzctMmNhMDRmOWUwNjE2@th
+ read.v2/0
+X-MICROSOFT-SKYPETEAMSPROPERTIES:{"cid":"19:meeting_ZWRlYzI4YzItYzIzOS00ODN
+ kLTllYzctMmNhMDRmOWUwNjE2@thread.v2"\,"rid":0\,"mid":0\,"uid":null\,"priva
+ te":true\,"type":0\,"ct":null\,"btid":null}
+X-MICROSOFT-DONOTFORWARDMEETING:FALSE
+X-MICROSOFT-DISALLOW-COUNTER:FALSE
+X-MICROSOFT-REQUESTEDATTENDANCEMODE:DEFAULT
+X-MICROSOFT-ISRESPONSEREQUESTED:TRUE
+X-MICROSOFT-LOCATIONDISPLAYNAME:Microsoft Teams Meeting
+X-MICROSOFT-LOCATIONSOURCE:None
+X-MICROSOFT-LOCATIONS:[{"DisplayName":"Microsoft Teams Meeting"\,"LocationA
+ nnotation":""\,"LocationUri":""\,"LocationStreet":""\,"LocationCity":""\,"
+ LocationState":""\,"LocationCountry":""\,"LocationPostalCode":""\,"Locatio
+ nFullAddress":""}]
+BEGIN:VALARM
+DESCRIPTION:REMINDER
+TRIGGER;RELATED=START:-PT15M
+ACTION:DISPLAY
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -56,6 +56,19 @@ async function initialize() {
     // Account -> Subscription
     db.Account.hasMany(db.Subscription, { foreignKey: 'acc_id', onDelete: 'CASCADE' }); 
     db.Subscription.belongsTo(db.Account, { foreignKey: 'acc_id', as: 'account' }); 
+
+    db.Account.hasMany(db.Subscription, { foreignKey: 'acc_id', onDelete: 'CASCADE' }); 
+    db.Subscription.belongsTo(db.Account, { foreignKey: 'acc_id', as: 'subscriber' });
+    
+    // Add new reviewer association for subscriptions
+    db.Account.hasMany(db.Subscription, { 
+        foreignKey: 'reviewed_by', 
+        as: 'reviewedSubscriptions'
+    });
+    db.Subscription.belongsTo(db.Account, { 
+        foreignKey: 'reviewed_by', 
+        as: 'reviewer'
+    });
     
     // rentitem - items
     db.Item.hasMany(db.RentItem, { foreignKey: 'Item_id', as: 'rentalItems' });
@@ -66,5 +79,7 @@ async function initialize() {
             
 
     // Sync the database
+    // await sequelize.sync({ alter: true }); //
+
     await sequelize.sync();
 }

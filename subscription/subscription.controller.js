@@ -4,6 +4,7 @@ const Joi = require('joi');
 const validateRequest = require('_middleware/validate-request');
 const subscriptionService = require('./subscription.service');
 const authorize = require('_middleware/authorize');
+const Role = require('_helpers/role');
 const multer = require('_middleware/multer-config');
 
 
@@ -13,6 +14,8 @@ router.get('/:id', getById); // Matches /:id
 router.get('/', getAll); // Matches /
 router.post('/', authorize(), multer.single('subscription_receipt'), createSchema, create);
 router.put('/:id', authorize(), multer.single('subscription_receipt'), updateSchema, update);
+router.put('/:id/approve', authorize(Role.Admin), approveSubscription);
+router.put('/:id/reject', authorize(Role.Admin), rejectSubscription);
 router.delete('/:id', _delete);
 
 
@@ -117,5 +120,17 @@ function getAllApproved(req, res, next) {
     subscriptionService
         .getAllApproved()
         .then(subscriptions => res.json(subscriptions))
+        .catch(next);
+}
+
+function approveSubscription(req, res, next) {
+    subscriptionService.approveSubscription(req.params.id, req.auth.id, req.body.remarks)
+        .then(subscription => res.json(subscription))
+        .catch(next);
+}
+
+function rejectSubscription(req, res, next) {
+    subscriptionService.rejectSubscription(req.params.id, req.auth.id, req.body.remarks)
+        .then(subscription => res.json(subscription))
         .catch(next);
 }
