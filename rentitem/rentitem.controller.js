@@ -8,6 +8,7 @@ const rentItemService = require('./rentitem.service');
 
 // Routes
 router.get('/', authorize(), getAll);
+router.get('/item/:id', getRentersByItem);
 router.get('/:id', authorize(), getById);
 router.get('/account/:acc_id', authorize(), getRentalsByAccountId);
 router.post('/', 
@@ -21,6 +22,15 @@ router.put('/:id/reject', authorize(), reject);
 router.delete('/:id', authorize(), _delete);
 
 module.exports = router;
+
+async function getRentersByItem(req, res, next) {
+    try {
+        const renters = await rentItemService.getRentersByItemId(req.params.id);
+        res.json(renters);
+    } catch (err) {
+        next(err);
+    }
+}
 
 function createSchema(req, res, next) {
     const schema = Joi.object({

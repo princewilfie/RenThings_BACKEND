@@ -17,6 +17,7 @@ router.put('/:id', authorize(), multer.single('subscription_receipt'), updateSch
 router.put('/:id/approve', authorize(Role.Admin), approveSubscription);
 router.put('/:id/reject', authorize(Role.Admin), rejectSubscription);
 router.delete('/:id', _delete);
+router.get('/item/:id', getRentersByItem);
 
 
 module.exports = router;
@@ -27,6 +28,15 @@ function getAll(req, res, next) {
         .getAll()
         .then(subscriptions => res.json(subscriptions))
         .catch(next);
+}
+
+async function getRentersByItem(req, res, next) {
+    try {
+        const renters = await rentItemService.getRentersByItemId(req.params.id);
+        res.json(renters);
+    } catch (err) {
+        next(err);
+    }
 }
 
 function getById(req, res, next) {

@@ -12,7 +12,9 @@ module.exports = {
     delete: _delete,
     getRentalsByAccountId,
     approveRental,
-    rejectRental
+    rejectRental,
+    getRentersByItemId
+
 };
 
 async function getAll() {
@@ -20,6 +22,16 @@ async function getAll() {
         include: [
             { model: db.Item, as: 'item' },
             { model: db.Account, as: 'renter' }
+        ]
+    });
+}
+
+async function getRentersByItemId(Item_id) {
+    return await db.RentItem.findAll({
+        where: { Item_id },  // Fetch all rentals for the given Item_id
+        include: [
+            { model: db.Item, as: 'item' }, 
+            { model: db.Account, as: 'renter' } 
         ]
     });
 }
