@@ -31,6 +31,10 @@ async function initialize() {
     //rentitem
     db.RentItem = require('../rentitem/rentitem.model')(sequelize);
 
+    //reportuser
+    db.UserReport = require('../reportuser/reportuser.model')(sequelize);
+
+
 
 
     Object.values(db).forEach((model) => {
@@ -76,6 +80,16 @@ async function initialize() {
 
     db.Account.hasMany(db.RentItem, { foreignKey: 'renter_acc_id', as: 'rentals' });
     db.RentItem.belongsTo(db.Account, { foreignKey: 'renter_acc_id', as: 'renterAccount' });
+
+    //reportuser
+    db.Account.hasMany(db.UserReport, { foreignKey: 'reporter_id', as: 'reportsMade' });
+    db.Account.hasMany(db.UserReport, { foreignKey: 'reported_id', as: 'reportsReceived' });
+    db.Account.hasMany(db.UserReport, { foreignKey: 'reviewer_id', as: 'reportsReviewed' });
+    db.UserReport.belongsTo(db.Account, { foreignKey: 'reporter_id', as: 'reporter' });
+    db.UserReport.belongsTo(db.Account, { foreignKey: 'reported_id', as: 'reportedUser' });
+    db.UserReport.belongsTo(db.Account, { foreignKey: 'reviewer_id', as: 'reviewer' });
+
+
             
 
     // Sync the database
