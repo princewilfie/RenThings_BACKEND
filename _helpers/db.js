@@ -34,6 +34,9 @@ async function initialize() {
     //reportuser
     db.UserReport = require('../reportuser/reportuser.model')(sequelize);
 
+    //feedback
+    db.Feedback = require('../feedback/feedback.model')(sequelize);
+
 
 
 
@@ -88,6 +91,14 @@ async function initialize() {
     db.UserReport.belongsTo(db.Account, { foreignKey: 'reporter_id', as: 'reporter' });
     db.UserReport.belongsTo(db.Account, { foreignKey: 'reported_id', as: 'reportedUser' });
     db.UserReport.belongsTo(db.Account, { foreignKey: 'reviewer_id', as: 'reviewer' });
+
+
+    // feedback
+    db.RentItem.hasOne(db.Feedback, { foreignKey: 'RentItem_id', as: 'feedback' });
+    db.Feedback.belongsTo(db.RentItem, { foreignKey: 'RentItem_id', as: 'rentItem' });
+
+    db.Account.hasMany(db.Feedback, { foreignKey: 'acc_id', as: 'givenFeedbacks' });
+    db.Feedback.belongsTo(db.Account, { foreignKey: 'acc_id', as: 'account' });
 
 
             

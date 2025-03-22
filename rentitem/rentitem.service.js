@@ -13,7 +13,8 @@ module.exports = {
     getRentalsByAccountId,
     approveRental,
     rejectRental,
-    getRentersByItemId
+    getRentersByItemId,
+    markAsReturned
 
 };
 
@@ -206,5 +207,39 @@ async function rejectRental(RentItem_id, rejectionReason) {
         });
     }
 
+    return rentItem;
+}
+
+async function markAsReturned(RentItem_id) {
+    const rentItem = await getById(RentItem_id);
+
+    if (rentItem.rental_status !== 'Approved') {
+        throw 'Only Approved rentals can be marked as returned';
+    }
+
+    // Update rental status to Completed
+    rentItem.rental_status = 'Completed';
+    rentItem.updated_at = new Date();
+    await rentItem.save();
+
+    // Update item status to Available
+    const item = await db.Item.findByPk(rentItem.Item_id);
+    item.Item_status = 'Available';
+    await item.save();
+
+    // Notify renter about return completion
+    const renterAccount = await db.Account.findByPk(rentItem.renter_acc_id);
+    if (renterAccount) {
+        await sendEmail({
+            to: renterAccount.acc_email,
+            subject: 'Rental Completed - Share Your Feedback',
+            html: `
+                <p>Your rental period for <strong>${item.Item_name}</strong> has ended, and the item has been returned successfully.</p>
+                <p>We’d love to hear about your experience! Feel free to share your feedback.</p>
+                <p>Thank you for renting with us!</p>
+            `
+        });
+    }
+    
     return rentItem;
 }

@@ -19,6 +19,7 @@ router.post('/',
 );router.put('/:id', authorize(), updateSchema, update);
 router.put('/:id/approve', authorize(), approve);
 router.put('/:id/reject', authorize(), reject);
+router.put('/:id/return', authorize(), markAsReturned);
 router.delete('/:id', authorize(), _delete);
 
 module.exports = router;
@@ -96,4 +97,13 @@ function reject(req, res, next) {
     rentItemService.rejectRental(req.params.id, req.body.rejection_reason)
         .then(rentItem => res.json(rentItem))
         .catch(next);
+}
+
+async function markAsReturned(req, res, next) {
+    try {
+        const result = await rentItemService.markAsReturned(req.params.id);
+        res.json({ message: 'Rental marked as returned successfully', result });
+    } catch (err) {
+        next(err);
+    }
 }
