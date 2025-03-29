@@ -19,13 +19,14 @@ async function getAll() {
     return await db.Item.findAll();
 }
 
+
 async function getById(Item_id) {
     const item = await db.Item.findByPk(Item_id, {
         include: [
             {
                 model: db.Account,
                 as: 'account',
-                attributes: ['acc_address']
+                attributes: ['acc_firstName', 'acc_lastName', 'acc_email', 'acc_image']
             }
         ]
     });
