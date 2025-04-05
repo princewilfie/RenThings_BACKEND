@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const Joi = require('joi');
+const multer = require('_middleware/multer-config');
 const validateRequest = require('../_middleware/validate-request');
 const authorize = require('../_middleware/authorize');
 const chatService = require('./chat.service');
 const socket = require('_helpers/socket'); // Import the socket module
+const path = require('path');
 
 // Message validation schema
 function sendMessageSchema(req, res, next) {
@@ -15,27 +17,36 @@ function sendMessageSchema(req, res, next) {
     validateRequest(req, next, schema);
 }
 
-// Routes
-router.post('/send', authorize(), sendMessageSchema, async (req, res, next) => {
-    try {
-        const messageData = {
-            sender_id: req.auth.id,
-            receiver_id: req.body.receiver_id,
-            message: req.body.message,
-        };
+router.post(
+    '/send',
+    authorize(),
+    multer.single('image'), // Handle image upload
+    sendMessageSchema,
+    async (req, res, next) => {
+        try {
+            const messageData = {
+                sender_id: req.auth.id,
+                receiver_id: req.body.receiver_id,
+                message: req.body.message
+            };
 
-        const savedMessage = await chatService.sendMessage(messageData);
+            if (req.file) {
+                messageData.image_path = path.basename(req.file.path); // ⬅️ Consistent with your pattern
+            }
 
-        // Emit the message using Socket.IO
-        const io = socket.getIO();
-        io.to(messageData.receiver_id.toString()).emit('new_message', savedMessage);
+            const savedMessage = await chatService.sendMessage(messageData);
 
-        res.json(savedMessage);
-    } catch (error) {
-        console.error('Error Sending Message:', error);
-        next(error);
+            const io = socket.getIO();
+            io.to(messageData.receiver_id.toString()).emit('new_message', savedMessage);
+
+            res.json(savedMessage);
+        } catch (error) {
+            console.error('Error Sending Message:', error);
+            next(error);
+        }
     }
-});
+);
+
 
 
 router.get('/conversation/:other_id', authorize(), async (req, res, next) => {

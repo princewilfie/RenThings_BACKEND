@@ -14,13 +14,15 @@ async function sendMessage(data) {
     if (!data.sender_id || !data.receiver_id || !data.message) {
         throw new Error('Missing required fields');
     }
-    
+
     return await db.Chat.create({
         sender_id: data.sender_id,
         receiver_id: data.receiver_id,
-        message: data.message
+        message: data.message,
+        image_path: data.image_path || null
     });
 }
+
 
 async function getConversation(user_id, other_id) {
     return await db.Chat.findAll({

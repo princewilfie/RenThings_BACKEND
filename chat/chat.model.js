@@ -30,7 +30,12 @@ module.exports = (sequelize) => {
         read: {
             type: DataTypes.BOOLEAN,
             defaultValue: false
+        },
+        image_path: {
+            type: DataTypes.STRING,
+            allowNull: true
         }
+        
     }, {
         timestamps: true,
         createdAt: 'created_at',
