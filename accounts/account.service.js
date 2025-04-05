@@ -7,7 +7,7 @@ const sendEmail = require('_helpers/send-email');
 const path = require('path');
 const db = require('_helpers/db');
 const Role = require('_helpers/role');
-
+const activityLogService = require('../activity-logs/activity-log.service');
 
 
 module.exports = {
@@ -30,17 +30,45 @@ module.exports = {
 async function authenticate({ acc_email, acc_passwordHash, ipAddress }) {
     const account = await db.Account.scope('withHash').findOne({ where: { acc_email } });
 
-    if (!account.acc_verified) {
-        throw 'Account not verified. Please check your email to verify your account.';
-    }
-
-    if (!account || !(await bcrypt.compare(acc_passwordHash, account.acc_passwordHash))) { 
+    if (!account || !(await bcrypt.compare(acc_passwordHash, account.acc_passwordHash))) {
+        // Log failed login attempt
+        await activityLogService.logActivity({
+            username: acc_email,
+            action: 'Login failed',
+            ipAddress
+        });
         throw 'Email or password is incorrect';
     }
 
+    if (!account.acc_verified) {
+        // Log unverified account login attempt
+        await activityLogService.logActivity({
+            userId: account.id,
+            username: `${account.acc_firstName} ${account.acc_lastName}`,
+            action: 'Login attempt (unverified account)',
+            ipAddress
+        });
+        throw 'Account not verified. Please check your email to verify your account.';
+    }
+
     if (account.acc_status === 'Inactive') {
+        // Log disabled account login attempt
+        await activityLogService.logActivity({
+            userId: account.id,
+            username: `${account.acc_firstName} ${account.acc_lastName}`,
+            action: 'Login attempt (inactive account)',
+            ipAddress
+        });
         throw 'Your account is disabled. Please contact the administrator.';
     }
+
+    // Log successful login
+    await activityLogService.logActivity({
+        userId: account.id,
+        username: `${account.acc_firstName} ${account.acc_lastName}`,
+        action: 'Login successful',
+        ipAddress
+    });
 
     const jwtToken = generateJwtToken(account);
     const refreshToken = generateRefreshToken(account, ipAddress);
@@ -83,6 +111,11 @@ async function revokeToken({ token, ipAddress }) {
 
 async function register(params, origin) {
     if (await db.Account.findOne({ where: { acc_email: params.acc_email } })) {
+        await activityLogService.logActivity({
+            username: params.acc_email,
+            action: 'Registration attempt (email already registered)',
+            ipAddress: params.ipAddress || null
+        });
         return await sendAlreadyRegisteredEmail(params.acc_email, origin);
     }
 
@@ -92,9 +125,17 @@ async function register(params, origin) {
     account.acc_role = isFirstAccount ? Role.Admin : Role.User;
     account.acc_verificationToken = randomTokenString();
 
-    account.acc_passwordHash = await hash(params.acc_passwordHash, 10);
+    account.acc_passwordHash = await hash(params.acc_passwordHash);
 
     await account.save();
+    
+    // Log registration
+    await activityLogService.logActivity({
+        userId: account.id,
+        username: `${account.acc_firstName} ${account.acc_lastName}`,
+        action: 'Account registered',
+        ipAddress: params.ipAddress || null
+    });
 
     await sendVerificationEmail(account, origin);
 }

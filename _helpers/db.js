@@ -37,6 +37,7 @@ async function initialize() {
     //feedback
     db.Feedback = require('../feedback/feedback.model')(sequelize);
 
+    db.ActivityLog = require('../activity-logs/activity-log.model')(sequelize);
 
 
 
@@ -99,6 +100,12 @@ async function initialize() {
 
     db.Account.hasMany(db.Feedback, { foreignKey: 'acc_id', as: 'givenFeedbacks' });
     db.Feedback.belongsTo(db.Account, { foreignKey: 'acc_id', as: 'account' });
+
+    // ActivityLog
+    db.Account.hasMany(db.ActivityLog, { foreignKey: 'userId', onDelete: 'SET NULL' });
+    db.ActivityLog.belongsTo(db.Account, { foreignKey: 'userId', as: 'user' });
+
+
 
 
             

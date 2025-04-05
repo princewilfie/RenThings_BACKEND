@@ -29,7 +29,7 @@ app.use('/subscription', require('./subscription/subscription.controller'));
 app.use('/rentitem', require('./rentitem/rentitem.controller'));
 app.use('/reportuser', require('./reportuser/reportuser.controller'));
 app.use('/feedback', require('./feedback/feedback.controller'));
-
+app.use('/activity-logs', require('./activity-logs/activity.log.controller'));
 // swagger docs route
 app.use('/api-docs', require('_helpers/swagger'));
 
