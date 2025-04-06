@@ -8,30 +8,38 @@ const chatService = require('./chat.service');
 const socket = require('_helpers/socket'); // Import the socket module
 const path = require('path');
 
-// Message validation schema
 function sendMessageSchema(req, res, next) {
+    
     const schema = Joi.object({
         receiver_id: Joi.number().required(),
-        message: Joi.string().required()
-    });
+        message: Joi.string().allow('').optional(), // Allow empty message
+        image: Joi.any().optional() // Dummy image field
+    }).or('message', 'image'); // Require at least one of message or image
+
+    
+    if (req.file) {
+        req.body.image = 'uploaded';
+    }
+
     validateRequest(req, next, schema);
 }
+
 
 router.post(
     '/send',
     authorize(),
-    multer.single('image'), // Handle image upload
+    multer.single('image'), 
     sendMessageSchema,
     async (req, res, next) => {
         try {
             const messageData = {
                 sender_id: req.auth.id,
                 receiver_id: req.body.receiver_id,
-                message: req.body.message
+                message: req.body.message || ''
             };
 
             if (req.file) {
-                messageData.image_path = path.basename(req.file.path); // ⬅️ Consistent with your pattern
+                messageData.image_path = path.basename(req.file.path); 
             }
 
             const savedMessage = await chatService.sendMessage(messageData);
