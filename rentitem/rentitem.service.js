@@ -1,7 +1,6 @@
 const db = require('_helpers/db');
 const sendEmail = require('_helpers/send-email');
 const { Op } = require('sequelize'); 
-const path = require('path');
 
 
 module.exports = {
@@ -50,9 +49,7 @@ async function getById(RentItem_id) {
 
 async function create(params, file) {
 
-    if (!file) {
-        throw 'Verification image is required';
-    }
+    
     
     // Existing conflict and validation checks
     const item = await db.Item.findByPk(params.Item_id);
@@ -61,6 +58,11 @@ async function create(params, file) {
 
     const renterAccount = await db.Account.findByPk(params.renter_acc_id);
     if (!renterAccount) throw 'Renter account not found';
+
+    // Check if the renter has been verified
+    if (!renterAccount.acc_verification_status || renterAccount.acc_verification_status !== 'approved') {
+        throw 'Your account needs to be verified before renting items. Please upload a verification image.';
+    }
 
     // Check for conflicting rental periods
     const conflictingRentals = await db.RentItem.findAll({
@@ -108,12 +110,6 @@ async function create(params, file) {
 
     // Create rental item
     const rentItem = new db.RentItem(rentItemParams);
-    
-    // Add verification image if uploaded
-    if (file) {
-        rentItem.verification_image = path.basename(file.path);
-    }
-    
     await rentItem.save();
 
     // Notify item owner about rental request

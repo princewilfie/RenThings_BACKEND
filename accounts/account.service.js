@@ -24,7 +24,11 @@ module.exports = {
     create,
     update,
     delete: _delete,
-    updateSubscription
+    updateSubscription,
+    uploadVerificationImage,
+    approveVerification,
+    rejectVerification,
+    checkVerificationStatus
 };
 
 async function authenticate({ acc_email, acc_passwordHash, ipAddress }) {
@@ -356,4 +360,139 @@ async function updateSubscription(id, subscriptionStatus) {
     await account.save();
 
     return basicDetails(account);
+}
+
+
+async function uploadVerificationImage(id, files) {
+    // Validate files exists and is an array with items
+    if (!files || !Array.isArray(files) || files.length === 0) {
+        throw 'At least one verification image is required';
+    }
+
+    const account = await getAccount(id);
+    
+    // Store the filenames as JSON string
+    account.acc_verification_image = JSON.stringify(
+        files.map(file => file.filename || path.basename(file.path))
+    );
+    
+    account.acc_verification_status = 'pending';
+    account.acc_updated = new Date();
+    
+    await account.save();
+    
+    // Log this activity
+    await activityLogService.logActivity({
+        userId: account.id,
+        username: `${account.acc_firstName} ${account.acc_lastName}`,
+        action: 'Verification image uploaded',
+        ipAddress: null
+    });
+    
+    return basicDetails(account);
+}
+
+async function approveVerification(id, adminId) {
+    const account = await getAccount(id);
+    const admin = await getAccount(adminId);
+    
+    if (account.acc_verification_status !== 'pending') {
+        throw 'Account verification is not pending';
+    }
+    
+    if (admin.acc_role !== Role.Admin) {
+        throw 'Only administrators can approve verifications';
+    }
+    
+    account.acc_verification_status = 'approved';
+    account.acc_updated = new Date();
+    
+    await account.save();
+    
+    // Log this activity
+    await activityLogService.logActivity({
+        userId: admin.id,
+        username: `${admin.acc_firstName} ${admin.acc_lastName}`,
+        action: `Approved verification for ${account.acc_email}`,
+        ipAddress: null
+    });
+    
+    // Notify the user via email
+    await sendEmail({
+        to: account.acc_email,
+        subject: 'Your Verification Has Been Approved',
+        html: `<p>Dear ${account.acc_firstName},</p><p>Your account verification has been approved!</p><p>You can now rent items on our platform.</p>`
+    });
+    
+    return basicDetails(account);
+}
+
+async function rejectVerification(id, adminId, notes) {
+    const account = await getAccount(id);
+    const admin = await getAccount(adminId);
+    
+    if (account.acc_verification_status !== 'pending') {
+        throw 'Account verification is not pending';
+    }
+    
+    if (admin.acc_role !== Role.Admin) {
+        throw 'Only administrators can reject verifications';
+    }
+    
+    account.acc_verification_status = 'rejected';
+    account.acc_verification_notes = notes || 'No notes provided';
+    account.acc_updated = new Date();
+    
+    await account.save();
+    
+    // Log this activity
+    await activityLogService.logActivity({
+        userId: admin.id,
+        username: `${admin.acc_firstName} ${admin.acc_lastName}`,
+        action: `Rejected verification for ${account.acc_email}`,
+        ipAddress: null
+    });
+    
+    // Notify the user via email
+    await sendEmail({
+        to: account.acc_email,
+        subject: 'Your Verification Has Been Rejected',
+        html: `<p>Dear ${account.acc_firstName},</p><p>Your account verification has been rejected for the following reason:</p><p>${notes}</p><p>Please upload a new verification image to try again.</p>`
+    });
+    
+    return basicDetails(account);
+}
+
+async function checkVerificationStatus(id) {
+    const account = await getAccount(id);
+    return {
+        status: account.acc_verification_status || 'not_submitted',
+        notes: account.acc_verification_notes
+    };
+}
+
+// Make sure to update your basicDetails function to include the new fields
+function basicDetails(account) {
+    const { 
+        id, acc_firstName, acc_lastName, acc_email, acc_role, acc_created, 
+        acc_updated, acc_isVerified, acc_image, acc_address, acc_status, 
+        acc_subscription, acc_verification_status, acc_verification_image 
+    } = account;
+    
+    let parsedVerificationImage = [];
+    if (acc_verification_image) {
+        try {
+            parsedVerificationImage = JSON.parse(acc_verification_image);
+        } catch (err) {
+            console.error(`Failed to parse acc_verification_image for account ${id}:`, err.message);
+            parsedVerificationImage = []; // Fallback to empty array
+        }
+    }
+    
+    return { 
+        id, acc_firstName, acc_lastName, acc_email, acc_role, acc_created, 
+        acc_updated, acc_isVerified, acc_image, acc_address, acc_status, 
+        acc_subscription, acc_verification_status, 
+        acc_verification_image: parsedVerificationImage 
+    };
 }

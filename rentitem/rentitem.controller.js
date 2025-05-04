@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const Joi = require('joi');
-const multer = require('_middleware/multer-config');
 const validateRequest = require('_middleware/validate-request');
 const authorize = require('_middleware/authorize');
 const rentItemService = require('./rentitem.service');
@@ -11,12 +10,13 @@ router.get('/', authorize(), getAll);
 router.get('/item/:id', getRentersByItem);
 router.get('/:id', authorize(), getById);
 router.get('/account/:acc_id', authorize(), getRentalsByAccountId);
-router.post('/', 
+router.post(
+    '/', 
     authorize(), 
-    multer.single('verification_image'), 
     createSchema, 
     create
-);router.put('/:id', authorize(), updateSchema, update);
+);
+router.put('/:id', authorize(), updateSchema, update);
 router.put('/:id/approve', authorize(), approve);
 router.put('/:id/reject', authorize(), reject);
 router.put('/:id/return', authorize(), markAsReturned);

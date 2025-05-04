@@ -25,7 +25,15 @@ router.put('/:id', multer.single('acc_image'), (req, res, next) => {
 
 router.put('/:id/subscription', authorize(Role.Admin), updateSubscriptionSchema, updateSubscription);
 router.put('/:id', authorize(), updateSchema, update);
-
+router.post(
+    '/:id/verification-image',
+    authorize(),
+    multer.array('verification_images', 10), // Allow up to 10 files with name verification_images
+    uploadVerificationImage
+);
+router.get('/:id/verification-status', authorize(), getVerificationStatus);
+router.put('/:id/approve-verification', authorize(Role.Admin), approveVerificationSchema, approveVerification);
+router.put('/:id/reject-verification', authorize(Role.Admin), rejectVerificationSchema, rejectVerification);
 
 
 
@@ -266,4 +274,69 @@ function setTokenCookie(res, token) {
         expires: new Date(Date.now() + 7*24*60*60*1000)
     };
     res.cookie('refreshToken', token, cookieOptions);
+}
+
+function uploadVerificationImage(req, res, next) {
+    // Debug
+    console.log('Files received:', req.files);
+    
+    if (!req.files || req.files.length === 0) {
+        return res.status(400).json({ message: 'At least one verification image is required' });
+    }
+
+    // Authorization check
+    if (Number(req.params.id) !== req.auth.id && req.auth.role !== Role.Admin) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    accountService
+        .uploadVerificationImage(req.params.id, req.files)
+        .then(account => res.json({
+            message: 'Verification images uploaded successfully. Pending review.',
+            account
+        }))
+        .catch(error => {
+            console.error('Error:', error);
+            next(error);
+        });
+}
+
+
+function getVerificationStatus(req, res, next) {
+    // Check if user is authorized to view this account's verification status
+    if (Number(req.params.id) !== req.auth.id && req.auth.role !== Role.Admin) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+    
+    accountService.checkVerificationStatus(req.params.id)
+        .then(status => res.json(status))
+        .catch(next);
+}
+
+function approveVerificationSchema(req, res, next) {
+    const schema = Joi.object({});  // No body needed for approval
+    validateRequest(req, next, schema);
+}
+
+function approveVerification(req, res, next) {
+    accountService.approveVerification(req.params.id, req.auth.id)
+        .then(account => res.json({
+            message: 'Account verification approved successfully',
+            account
+        }))
+        .catch(next);
+}
+
+function rejectVerificationSchema(req, res, next) {
+    const schema = Joi.object({});
+    validateRequest(req, next, schema);
+}
+
+function rejectVerification(req, res, next) {
+    accountService.rejectVerification(req.params.id, req.auth.id, req.body.notes)
+        .then(account => res.json({
+            message: 'Account verification rejected',
+            account
+        }))
+        .catch(next);
 }

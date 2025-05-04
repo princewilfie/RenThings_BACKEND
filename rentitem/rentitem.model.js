@@ -46,11 +46,6 @@ function model(sequelize) {
             }
         },
 
-        verification_image: {
-            type: DataTypes.STRING,
-            allowNull: false
-        },
-
         created_at: { 
             type: DataTypes.DATE, 
             allowNull: false, 

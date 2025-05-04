@@ -39,6 +39,9 @@ async function initialize() {
 
     db.ActivityLog = require('../activity-logs/activity-log.model')(sequelize);
 
+    db.ItemTracking = require('../items/itemsTracking.model')(sequelize);
+
+
 
 
     Object.values(db).forEach((model) => {
@@ -104,6 +107,28 @@ async function initialize() {
     // ActivityLog
     db.Account.hasMany(db.ActivityLog, { foreignKey: 'userId', onDelete: 'SET NULL' });
     db.ActivityLog.belongsTo(db.Account, { foreignKey: 'userId', as: 'user' });
+
+
+    // item tracking
+    db.ItemTracking.belongsTo(db.Item, {
+        foreignKey: 'Item_id',
+        as: 'item',
+        onDelete: 'SET NULL', // Set Item_id to NULL when an item is deleted
+        constraints: false,
+    });
+    
+    db.ItemTracking.belongsTo(db.Account, { foreignKey: 'acc_id', as: 'account' });
+    db.ItemTracking.belongsTo(db.Account, { foreignKey: 'admin_id', as: 'admin' });
+    
+    // Change this to remove the cascade delete
+    db.Item.hasMany(db.ItemTracking, {
+        foreignKey: 'Item_id',
+        as: 'tracking',
+        onDelete: 'SET NULL', // Set Item_id to NULL when an item is deleted
+        constraints: false,
+    });
+
+
 
 
 

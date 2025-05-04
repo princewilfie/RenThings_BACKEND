@@ -30,7 +30,21 @@ function model(sequelize) {
             type: DataTypes.ENUM('disabled', 'active'),
             defaultValue: 'disabled',
             allowNull: false
+        },
+
+        acc_verification_image: { 
+            type: DataTypes.STRING, 
+            allowNull: true 
+        },
+        acc_verification_status: { 
+            type: DataTypes.ENUM('pending', 'approved', 'rejected'), 
+            allowNull: true 
+        },
+        acc_verification_notes: { 
+            type: DataTypes.STRING, 
+            allowNull: true 
         }
+
     };
 
     const options = {

@@ -16,7 +16,8 @@ router.put('/:id', authorize(), multer.single('Item_image'), updateSchema, updat
 router.put('/:id/approve', authorize('Admin'), approve);
 router.put('/:id/reject', authorize('Admin'),  reject);
 router.delete('/:id', authorize(), _delete);
-
+router.get('/tracking/report', authorize('Admin'), trackingReportSchema, getItemsTrackingReport);
+router.get('/tracking/:id', authorize(), getItemTrackingHistory);
 module.exports = router;
 
 function createSchema(req, res, next) {
@@ -44,6 +45,16 @@ function getAll(req, res, next) {
     itemService.getAll()
         .then(items => res.json(items))
         .catch(next);
+}
+
+function trackingReportSchema(req, res, next) {
+    const schema = Joi.object({
+        startDate: Joi.date().iso().allow(null, ''),
+        endDate: Joi.date().iso().allow(null, ''),
+        status: Joi.string().valid('Available', 'Unavailable').allow(null, ''),
+        approval_status: Joi.string().valid('Pending', 'Approved', 'Rejected').allow(null, '')
+    });
+    validateRequest(req, next, schema);
 }
 
 function getById(req, res, next) {
@@ -92,5 +103,20 @@ function reject(req, res, next) {
 function getAllApproved(req, res, next) {
     itemService.getAllApproved()
         .then(items => res.json(items))
+        .catch(next);
+}
+
+// New controller functions for tracking reports
+function getItemsTrackingReport(req, res, next) {
+    const { startDate, endDate, status, approval_status } = req.query;
+    
+    itemService.getItemsTrackingReport(startDate, endDate, status, approval_status)
+        .then(report => res.json(report))
+        .catch(next);
+}
+
+function getItemTrackingHistory(req, res, next) {
+    itemService.getItemTrackingHistory(req.params.id)
+        .then(history => res.json(history))
         .catch(next);
 }
