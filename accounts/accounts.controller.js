@@ -193,12 +193,26 @@ function getAll(req, res, next) {
 }
 
 function getById(req, res, next) {
-    if (Number(req.params.id) !== req.auth.id && req.auth.role !== Role.Admin) {
-        return res.status(401).json({ message: 'Unauthorized' });
+    console.log('getById - Route params ID:', req.params.id);
+    console.log('getById - Auth user ID:', req.auth.id);
+
+    // Convert both IDs to numbers for comparison
+    const requestedId = Number(req.params.id);
+    const authUserId = Number(req.auth.id);
+    
+    // Check authorization - allow if user is requesting their own account or if user is an admin
+    if (requestedId !== authUserId && req.auth.role !== Role.Admin) {
+        console.log('Unauthorized: User', authUserId, 'trying to access account', requestedId);
+        return res.status(401).json({ message: 'Unauthorized - You can only access your own account' });
     }
 
     accountService.getById(req.params.id)
-        .then(account => account ? res.json(account) : res.sendStatus(404))
+        .then(account => {
+            if (!account) {
+                return res.status(404).json({ message: 'Account not found' });
+            }
+            res.json(account);
+        })
         .catch(next);
 }
 

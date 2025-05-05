@@ -253,9 +253,16 @@ async function rejectItem(Item_id, rejectionReason) {
 
 async function getAllApproved() {
     return await db.Item.findAll({
-        where: { Item_approvalstatus: 'Approved' }
+      where: { Item_approvalstatus: 'Approved' },
+      include: [
+        {
+          model: db.Account,
+          as: 'account',
+          attributes: ['acc_address'] 
+        }
+      ]
     });
-}
+  }
 
 async function addTrackingRecord(trackingData) {
     const record = new db.ItemTracking(trackingData);
